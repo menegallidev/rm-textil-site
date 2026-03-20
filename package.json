@@ -2,19 +2,25 @@
   "name": "next-monorepo",
   "version": "0.0.1",
   "private": true,
+  "packageManager": "npm@10.9.3",
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "turbo format",
-    "typecheck": "turbo typecheck"
+    "typecheck": "turbo typecheck",
+    "db:generate": "node scripts/prisma-with-env.mjs generate",
+    "db:push": "node scripts/prisma-with-env.mjs db push --skip-generate",
+    "db:seed": "node --env-file=.env --import tsx prisma/seed.ts"
   },
   "devDependencies": {
     "@workspace/eslint-config": "*",
     "@workspace/typescript-config": "*",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
+    "prisma": "^6.18.0",
     "turbo": "^2.8.17",
+    "tsx": "^4.20.6",
     "typescript": "5.9.3"
   },
   "engines": {

@@ -1,19 +1,32 @@
-import { Button } from "@workspace/ui/components/button"
+import { getActiveProducts } from "@workspace/db"
 
-export default function Page() {
+import { FloatingContact } from "@/components/layout/floating-contact"
+import { SiteFooter } from "@/components/layout/site-footer"
+import { SiteHeader } from "@/components/layout/site-header"
+import { EditorialSection } from "@/components/home/editorial-section"
+import { HeroSection } from "@/components/home/hero-section"
+import { ProductsSection } from "@/components/home/products-section"
+
+export const dynamic = "force-dynamic"
+
+export default async function Page() {
+  const activeProducts = await getActiveProducts()
+
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="text-muted-foreground font-mono text-xs">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
+    <div className="relative overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[36rem] bg-[radial-gradient(circle_at_top,rgba(126,151,205,0.14),transparent_58%)]" />
+      <div className="pointer-events-none absolute inset-x-0 top-[36rem] -z-10 h-[42rem] bg-[radial-gradient(circle_at_center,rgba(184,198,221,0.12),transparent_48%)]" />
+
+      <SiteHeader />
+
+      <main className="pb-8">
+        <HeroSection />
+        <ProductsSection products={activeProducts} />
+        <EditorialSection />
+      </main>
+
+      <SiteFooter />
+      <FloatingContact />
     </div>
   )
 }

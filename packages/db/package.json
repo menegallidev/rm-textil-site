@@ -1,0 +1,24 @@
+{
+  "name": "@workspace/db",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.18.0"
+  },
+  "devDependencies": {
+    "@workspace/typescript-config": "*",
+    "typescript": "^5.9.3"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./env": "./src/env.ts",
+    "./products": "./src/products.ts",
+    "./security/password": "./src/security/password.ts",
+    "./security/slug": "./src/security/slug.ts"
+  }
+}
