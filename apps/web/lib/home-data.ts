@@ -40,12 +40,15 @@ export interface ProductItem {
   swatches: string[]
 }
 
+export const whatsappContact = {
+  href: "https://wa.me/5519996282121",
+  displayNumber: "(19) 99628-2121",
+} as const
+
 export const navigationLinks = [
-  { label: "Colecoes", href: "#colecoes" },
-  { label: "Produtos", href: "#produtos" },
-  { label: "Guia da mesa posta", href: "#guia" },
-  { label: "FAQ", href: "#faq" },
-  { label: "Contato", href: "#contato" },
+  { label: "Inicio", href: "#top", external: false },
+  { label: "Produtos", href: "#produtos", external: false },
+  { label: "Contato", href: "#contato", external: false },
 ] as const
 
 export const topBarHighlights = [
@@ -97,15 +100,6 @@ export const serviceHighlights = [
     description:
       "Um visual simples, moderno e elegante inspirado na identidade da RM Textil.",
   },
-] as const
-
-export const categoryFilters = [
-  "Lancamentos",
-  "Mais vendidos",
-  "Jogos americanos",
-  "Sousplats",
-  "Guardanapos",
-  "Trilhos",
 ] as const
 
 export const collectionHighlights = [
@@ -504,7 +498,7 @@ export const footerLinkGroups = [
     links: [
       "Segunda a sexta, 9h as 18h",
       "contato@rmtextil.com.br",
-      "(11) 99999-0000",
+      whatsappContact.displayNumber,
       "Instagram e WhatsApp",
     ],
   },

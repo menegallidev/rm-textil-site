@@ -1,16 +1,26 @@
-import { getActiveProducts } from "@workspace/db"
+import { getActiveCategories, getActiveProducts } from "@workspace/db"
 
-import { FloatingContact } from "@/components/layout/floating-contact"
-import { SiteFooter } from "@/components/layout/site-footer"
-import { SiteHeader } from "@/components/layout/site-header"
-import { EditorialSection } from "@/components/home/editorial-section"
 import { HeroSection } from "@/components/home/hero-section"
 import { ProductsSection } from "@/components/home/products-section"
+import { SiteFooter } from "@/components/layout/site-footer"
+import { SiteHeader } from "@/components/layout/site-header"
 
 export const dynamic = "force-dynamic"
 
-export default async function Page() {
-  const activeProducts = await getActiveProducts()
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    categoria?: string
+  }>
+}) {
+  const { categoria } = await searchParams
+  const activeCategories = await getActiveCategories()
+  const selectedCategory =
+    activeCategories.find((category) => category.slug === categoria) ?? null
+  const activeProducts = await getActiveProducts({
+    categorySlug: selectedCategory?.slug,
+  })
 
   return (
     <div className="relative overflow-hidden">
@@ -19,14 +29,17 @@ export default async function Page() {
 
       <SiteHeader />
 
-      <main className="pb-8">
-        <HeroSection />
-        <ProductsSection products={activeProducts} />
-        <EditorialSection />
+      <main className="pb-4">
+        <HeroSection categories={activeCategories} />
+        <ProductsSection
+          products={activeProducts}
+          categories={activeCategories}
+          selectedCategorySlug={selectedCategory?.slug}
+          selectedCategoryName={selectedCategory?.name}
+        />
       </main>
 
       <SiteFooter />
-      <FloatingContact />
     </div>
   )
 }

@@ -1,107 +1,109 @@
-import type { ComponentType, ReactNode } from "react"
+import { ExternalLink } from "lucide-react"
+import Link from "next/link"
 
-import type { ProductWithMedia } from "@workspace/db"
-import {
-  ExternalLink,
-  Images,
-  Layers3,
-  Leaf,
-  Palette,
-  ShieldCheck,
-  Sparkles,
-  SwatchBook,
-  Truck,
-  Video,
-} from "lucide-react"
-
+import type { Category, ProductWithMedia } from "@workspace/db"
 import { Badge } from "@workspace/ui/components/badge"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardFooter } from "@workspace/ui/components/card"
 
-import { Container } from "@/components/layout/container"
 import {
   ProductMediaCarousel,
   type ProductMediaCarouselItem,
 } from "@/components/home/product-media-carousel"
 import { ProductScene } from "@/components/home/product-scene"
-import { SectionHeading } from "@/components/home/section-heading"
-import {
-  formatCurrencyFromCents,
-  getFallbackScene,
-  getProductImageUrls,
-  getProductVideoUrls,
-} from "@/lib/catalog"
-import { serviceHighlights, type IconKey } from "@/lib/home-data"
-
-const iconMap: Record<IconKey, ComponentType<{ className?: string }>> = {
-  sparkles: Sparkles,
-  shield: ShieldCheck,
-  truck: Truck,
-  leaf: Leaf,
-  palette: Palette,
-  layers: Layers3,
-  swatchbook: SwatchBook,
-  message: Sparkles,
-}
+import { Container } from "@/components/layout/container"
+import { formatCurrencyFromCents, getFallbackScene } from "@/lib/catalog"
 
 export function ProductsSection({
   products,
+  categories,
+  selectedCategorySlug,
+  selectedCategoryName,
 }: {
   products: ProductWithMedia[]
+  categories: Category[]
+  selectedCategorySlug?: string
+  selectedCategoryName?: string
 }) {
   return (
-    <section id="produtos" className="py-10 sm:py-14">
+    <section id="produtos" className="pt-2 pb-8 sm:pb-12">
       <Container className="space-y-8">
-        <div className="grid gap-6 lg:grid-cols-[0.78fr_0.22fr] lg:items-end">
-          <SectionHeading
-            eyebrow="Catalogo em destaque"
-            title="Vitrine inspirada na referencia, agora alimentada pelo banco"
-            description="Os produtos abaixo ja saem do Prisma e respeitam a regra de exibicao: apenas itens ativos aparecem no site. Quando houver imagens e videos cadastrados pelo admin, eles entram automaticamente nos cards."
-          />
-
-          <div className="rounded-[1.75rem] border border-primary/10 bg-white p-5 text-sm leading-7 text-black/80 shadow-[0_20px_60px_-42px_rgba(36,54,77,0.35)]">
-            O painel administrativo na rota <strong>/admin</strong> controla
-            cadastro, mídia, link externo e status de exibicao sem precisar
-            editar o código da vitrine.
+        <div className="space-y-4">
+          <div className="space-y-3">
+            <p className="text-xs font-semibold tracking-[0.18em] text-black/52 uppercase">
+              Produtos
+            </p>
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div className="space-y-3">
+                <h2 className="font-heading text-4xl leading-none text-black sm:text-5xl">
+                  {selectedCategoryName
+                    ? selectedCategoryName
+                    : "Todos os produtos"}
+                </h2>
+                <p className="max-w-2xl text-sm leading-7 text-black/70 sm:text-base">
+                  Escolha uma categoria para ver apenas os itens daquela linha
+                  ou navegue por toda a vitrine.
+                </p>
+              </div>
+              <p className="text-sm text-black/60">
+                {products.length}{" "}
+                {products.length === 1 ? "produto" : "produtos"}
+              </p>
+            </div>
           </div>
-        </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {serviceHighlights.map((item) => {
-            const Icon = iconMap[item.icon]
-
-            return (
-              <Card
-                key={item.title}
-                className="rounded-[1.75rem] border-primary/10 bg-white px-0 py-0 shadow-[0_18px_55px_-40px_rgba(36,54,77,0.28)]"
+          {categories.length > 0 ? (
+            <div className="flex flex-wrap gap-3">
+              <Button
+                asChild
+                variant={selectedCategorySlug ? "outline" : "default"}
+                size="lg"
+                className={
+                  selectedCategorySlug
+                    ? "rounded-full border-primary/12 bg-white text-black hover:bg-primary/[0.05]"
+                    : "rounded-full"
+                }
               >
-                <CardContent className="space-y-4 px-5 py-5">
-                  <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/[0.05] text-primary">
-                    <Icon className="size-5" />
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-sm font-semibold text-black">
-                      {item.title}
-                    </h3>
-                    <p className="text-sm leading-6 text-black/80">
-                      {item.description}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+                <Link href="/#produtos">Todas</Link>
+              </Button>
+
+              {categories.map((category) => {
+                const isSelected = selectedCategorySlug === category.slug
+
+                return (
+                  <Button
+                    key={category.id}
+                    asChild
+                    variant={isSelected ? "default" : "outline"}
+                    size="lg"
+                    className={
+                      isSelected
+                        ? "rounded-full"
+                        : "rounded-full border-primary/12 bg-white text-black hover:bg-primary/[0.05]"
+                    }
+                  >
+                    <Link href={`/?categoria=${category.slug}#produtos`}>
+                      {category.name}
+                    </Link>
+                  </Button>
+                )
+              })}
+            </div>
+          ) : null}
         </div>
 
         {products.length === 0 ? (
-          <Card className="rounded-[2rem] border-primary/10 bg-white px-0 py-0 shadow-[0_30px_80px_-55px_rgba(36,54,77,0.32)]">
+          <Card className="rounded-[2rem] border-primary/10 bg-white px-0 py-0 shadow-[0_24px_60px_-48px_rgba(36,54,77,0.28)]">
             <CardContent className="px-6 py-10 text-center sm:px-10">
               <h3 className="font-heading text-4xl leading-none font-semibold text-black">
-                Nenhum produto ativo no momento
+                {selectedCategoryName
+                  ? `Nenhum produto em ${selectedCategoryName}`
+                  : "Nenhum produto ativo no momento"}
               </h3>
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-black/75">
-                Entre no painel <strong>/admin</strong>, cadastre um produto e
-                marque-o como ativo para ele aparecer automaticamente aqui.
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-black/70">
+                {selectedCategoryName
+                  ? "Escolha outra categoria ou ative produtos nessa categoria pelo painel administrativo."
+                  : "Assim que novos produtos forem ativados no painel, eles aparecerao aqui automaticamente."}
               </p>
             </CardContent>
           </Card>
@@ -110,49 +112,36 @@ export function ProductsSection({
             {products.map((product, index) => (
               <Card
                 key={product.id}
-                className="rounded-[1.85rem] border-primary/10 bg-white px-0 py-0 transition duration-200 hover:-translate-y-1 hover:shadow-[0_36px_90px_-58px_rgba(36,54,77,0.56)]"
+                className="overflow-hidden rounded-[1.9rem] border-primary/10 bg-white px-0 py-0 shadow-[0_24px_60px_-46px_rgba(36,54,77,0.26)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_36px_80px_-48px_rgba(36,54,77,0.34)]"
               >
                 <div className="relative p-3">
                   <ProductVisual product={product} index={index} />
-                  <div className="pointer-events-none absolute inset-x-6 top-6 flex items-start justify-between gap-3">
+                  <div className="pointer-events-none absolute top-6 left-6">
                     <Badge className="h-7 rounded-full bg-white px-3 text-black shadow-sm">
                       {product.category}
                     </Badge>
-                    <div className="flex size-10 items-center justify-center rounded-full border border-primary/10 bg-white text-primary shadow-sm">
-                      <Sparkles className="size-4" />
-                    </div>
                   </div>
                 </div>
 
-                <CardContent className="space-y-4 px-5 pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <MetaPill
-                      icon={<Images className="size-3.5" />}
-                      label={`${getProductImageUrls(product).length} imagens`}
-                    />
-                    <MetaPill
-                      icon={<Video className="size-3.5" />}
-                      label={`${getProductVideoUrls(product).length} videos`}
-                    />
-                  </div>
-
-                  <div className="space-y-3">
-                    <h3 className="font-heading text-3xl leading-none font-semibold text-black">
-                      {product.title}
-                    </h3>
-                    <p className="text-sm leading-6 text-black/80">
-                      {product.description}
-                    </p>
-                  </div>
+                <CardContent className="space-y-3 px-5 pb-0">
+                  <h3 className="font-heading text-3xl leading-none text-black">
+                    {product.title}
+                  </h3>
+                  <p className="text-sm leading-6 text-black/74">
+                    {product.description}
+                  </p>
                 </CardContent>
 
-                <CardFooter className="mt-5 justify-between gap-3 border-t border-primary/8 bg-[#fbfcfd]">
+                <CardFooter className="mt-5 items-end justify-between gap-4 border-t border-primary/8 bg-[#fbfcfd]">
                   <div>
                     <p className="text-xl font-semibold text-black">
                       {formatCurrencyFromCents(product.priceInCents)}
                     </p>
-                    <p className="text-xs text-black/70">{product.category}</p>
+                    <p className="mt-1 text-xs tracking-[0.14em] text-black/48 uppercase">
+                      {product.category}
+                    </p>
                   </div>
+
                   <Button asChild size="lg" className="rounded-full">
                     <a
                       href={product.mercadoLivreUrl}
@@ -160,7 +149,7 @@ export function ProductsSection({
                       rel="noreferrer"
                     >
                       <ExternalLink className="size-4" />
-                      Mercado Livre
+                      Ver produto
                     </a>
                   </Button>
                 </CardFooter>
@@ -197,14 +186,7 @@ function ProductVisual({
     )
   }
 
-  return <ProductMediaCarousel productTitle={product.title} items={mediaItems} />
-}
-
-function MetaPill({ icon, label }: { icon: ReactNode; label: string }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-[#eef3f8] px-3 py-1 text-xs text-black/75">
-      {icon}
-      {label}
-    </span>
+    <ProductMediaCarousel productTitle={product.title} items={mediaItems} />
   )
 }

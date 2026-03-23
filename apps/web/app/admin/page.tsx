@@ -1,4 +1,4 @@
-import { getAdminProducts } from "@workspace/db"
+import { getAdminCategories, getAdminProducts } from "@workspace/db"
 
 import { AdminDashboard } from "@/components/admin/admin-dashboard"
 import { AdminLoginCard } from "@/components/admin/admin-login-card"
@@ -7,9 +7,11 @@ import { Container } from "@/components/layout/container"
 import { getCurrentAdmin } from "@/lib/admin/session"
 
 import {
+  createCategoryAction,
   createProductAction,
   loginAdminAction,
   logoutAdminAction,
+  toggleCategoryStatusAction,
   toggleProductStatusAction,
 } from "./actions"
 
@@ -37,13 +39,19 @@ export default async function AdminPage({
     )
   }
 
-  const products = await getAdminProducts()
+  const [products, categories] = await Promise.all([
+    getAdminProducts(),
+    getAdminCategories(),
+  ])
 
   return (
     <AdminDashboard
       adminEmail={admin.email}
+      categories={categories}
       products={products}
+      createCategoryAction={createCategoryAction}
       createProductAction={createProductAction}
+      toggleCategoryStatusAction={toggleCategoryStatusAction}
       toggleProductStatusAction={toggleProductStatusAction}
       logoutAction={logoutAdminAction}
       message={message}

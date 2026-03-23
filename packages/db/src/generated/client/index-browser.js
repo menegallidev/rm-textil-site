@@ -129,6 +129,15 @@ exports.Prisma.AdminUserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -136,6 +145,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   description: 'description',
   priceInCents: 'priceInCents',
   category: 'category',
+  categoryId: 'categoryId',
   mercadoLivreUrl: 'mercadoLivreUrl',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -160,6 +170,11 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
 exports.ProductMediaType = exports.$Enums.ProductMediaType = {
   IMAGE: 'IMAGE',
   VIDEO: 'VIDEO'
@@ -167,6 +182,7 @@ exports.ProductMediaType = exports.$Enums.ProductMediaType = {
 
 exports.Prisma.ModelName = {
   AdminUser: 'AdminUser',
+  Category: 'Category',
   Product: 'Product',
   ProductMedia: 'ProductMedia'
 };

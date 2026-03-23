@@ -101,6 +101,15 @@ exports.Prisma.AdminUserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.ProductScalarFieldEnum = {
   id: 'id',
   slug: 'slug',
@@ -108,6 +117,7 @@ exports.Prisma.ProductScalarFieldEnum = {
   description: 'description',
   priceInCents: 'priceInCents',
   category: 'category',
+  categoryId: 'categoryId',
   mercadoLivreUrl: 'mercadoLivreUrl',
   isActive: 'isActive',
   createdAt: 'createdAt',
@@ -132,6 +142,11 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
 exports.ProductMediaType = exports.$Enums.ProductMediaType = {
   IMAGE: 'IMAGE',
   VIDEO: 'VIDEO'
@@ -139,6 +154,7 @@ exports.ProductMediaType = exports.$Enums.ProductMediaType = {
 
 exports.Prisma.ModelName = {
   AdminUser: 'AdminUser',
+  Category: 'Category',
   Product: 'Product',
   ProductMedia: 'ProductMedia'
 };
@@ -190,13 +206,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../packages/db/src/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel AdminUser {\n  id           String   @id @default(cuid())\n  email        String   @unique\n  passwordHash String\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n}\n\nmodel Product {\n  id              String         @id @default(cuid())\n  slug            String         @unique\n  title           String\n  description     String\n  priceInCents    Int\n  category        String\n  mercadoLivreUrl String\n  isActive        Boolean        @default(true)\n  createdAt       DateTime       @default(now())\n  updatedAt       DateTime       @updatedAt\n  media           ProductMedia[]\n}\n\nmodel ProductMedia {\n  id        String           @id @default(cuid())\n  productId String\n  type      ProductMediaType\n  url       String\n  position  Int              @default(0)\n  createdAt DateTime         @default(now())\n  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)\n\n  @@index([productId, type])\n}\n\nenum ProductMediaType {\n  IMAGE\n  VIDEO\n}\n",
-  "inlineSchemaHash": "8940c9159cfd59df61851dfcf8b3d928009a4cdf7b3e771f74d6bb21ff018d88",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../packages/db/src/generated/client\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel AdminUser {\n  id           String   @id @default(cuid())\n  email        String   @unique\n  passwordHash String\n  createdAt    DateTime @default(now())\n  updatedAt    DateTime @updatedAt\n}\n\nmodel Category {\n  id        String    @id @default(cuid())\n  name      String    @unique\n  slug      String    @unique\n  isActive  Boolean   @default(true)\n  createdAt DateTime  @default(now())\n  updatedAt DateTime  @updatedAt\n  products  Product[]\n}\n\nmodel Product {\n  id              String         @id @default(cuid())\n  slug            String         @unique\n  title           String\n  description     String\n  priceInCents    Int\n  category        String\n  categoryId      String?\n  mercadoLivreUrl String\n  isActive        Boolean        @default(true)\n  createdAt       DateTime       @default(now())\n  updatedAt       DateTime       @updatedAt\n  categoryRecord  Category?      @relation(fields: [categoryId], references: [id], onDelete: SetNull)\n  media           ProductMedia[]\n\n  @@index([categoryId])\n}\n\nmodel ProductMedia {\n  id        String           @id @default(cuid())\n  productId String\n  type      ProductMediaType\n  url       String\n  position  Int              @default(0)\n  createdAt DateTime         @default(now())\n  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)\n\n  @@index([productId, type])\n}\n\nenum ProductMediaType {\n  IMAGE\n  VIDEO\n}\n",
+  "inlineSchemaHash": "2a27d2928e4841c6bebef1198e9e03b24af2fe1f12374744e675ac9e10b6651d",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"AdminUser\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"passwordHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Product\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"priceInCents\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mercadoLivreUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"media\",\"kind\":\"object\",\"type\":\"ProductMedia\",\"relationName\":\"ProductToProductMedia\"}],\"dbName\":null},\"ProductMedia\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"ProductMediaType\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"position\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToProductMedia\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"AdminUser\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"passwordHash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"Category\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"products\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"CategoryToProduct\"}],\"dbName\":null},\"Product\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"slug\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"priceInCents\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"category\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"categoryId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"mercadoLivreUrl\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"isActive\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"categoryRecord\",\"kind\":\"object\",\"type\":\"Category\",\"relationName\":\"CategoryToProduct\"},{\"name\":\"media\",\"kind\":\"object\",\"type\":\"ProductMedia\",\"relationName\":\"ProductToProductMedia\"}],\"dbName\":null},\"ProductMedia\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"productId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"type\",\"kind\":\"enum\",\"type\":\"ProductMediaType\"},{\"name\":\"url\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"position\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"product\",\"kind\":\"object\",\"type\":\"Product\",\"relationName\":\"ProductToProductMedia\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

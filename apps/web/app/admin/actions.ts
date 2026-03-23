@@ -1,10 +1,6 @@
 "use server"
 
-import {
-  prisma,
-  slugify,
-  verifyPassword,
-} from "@workspace/db"
+import { prisma, slugify, verifyPassword } from "@workspace/db"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
@@ -101,7 +97,7 @@ export async function createProductAction(formData: FormData) {
 
   const title = String(formData.get("title") ?? "").trim()
   const description = String(formData.get("description") ?? "").trim()
-  const category = String(formData.get("category") ?? "").trim()
+  const categoryId = String(formData.get("categoryId") ?? "").trim()
   const mercadoLivreUrl = String(formData.get("mercadoLivreUrl") ?? "").trim()
   const priceValue = Number(
     String(formData.get("price") ?? "")
@@ -110,7 +106,7 @@ export async function createProductAction(formData: FormData) {
   )
   const isActive = formData.get("isActive") === "on"
 
-  if (!title || !description || !category || !mercadoLivreUrl) {
+  if (!title || !description || !categoryId || !mercadoLivreUrl) {
     redirectWithStatus("error", "Preencha todos os campos obrigatorios.")
   }
 
@@ -119,6 +115,24 @@ export async function createProductAction(formData: FormData) {
   }
 
   assertValidUrl(mercadoLivreUrl, "Link do Mercado Livre")
+
+  const selectedCategory = await prisma.category.findFirst({
+    where: {
+      id: categoryId,
+      isActive: true,
+    },
+    select: {
+      id: true,
+      name: true,
+    },
+  })
+
+  if (!selectedCategory) {
+    redirectWithStatus(
+      "error",
+      "Selecione uma categoria ativa antes de cadastrar o produto."
+    )
+  }
 
   const imageFiles = getUploadedFiles(formData, "images")
   const videoFiles = getUploadedFiles(formData, "videos")
@@ -147,7 +161,8 @@ export async function createProductAction(formData: FormData) {
         slug,
         title,
         description,
-        category,
+        category: selectedCategory.name,
+        categoryId: selectedCategory.id,
         mercadoLivreUrl,
         priceInCents: Math.round(priceValue * 100),
         isActive,
@@ -168,6 +183,48 @@ export async function createProductAction(formData: FormData) {
   revalidatePath("/")
   revalidatePath("/admin")
   redirectWithStatus("message", "Produto cadastrado com sucesso.")
+}
+
+export async function createCategoryAction(formData: FormData) {
+  await requireCurrentAdmin()
+
+  const name = String(formData.get("name") ?? "").trim()
+  const isActive = formData.get("isActive") === "on"
+
+  if (!name) {
+    redirectWithStatus("error", "Informe o nome da categoria.")
+  }
+
+  const slug = slugify(name)
+
+  if (!slug) {
+    redirectWithStatus("error", "Informe um nome de categoria valido.")
+  }
+
+  const existingCategory = await prisma.category.findUnique({
+    where: {
+      slug,
+    },
+    select: {
+      id: true,
+    },
+  })
+
+  if (existingCategory) {
+    redirectWithStatus("error", "Essa categoria ja foi cadastrada.")
+  }
+
+  await prisma.category.create({
+    data: {
+      name,
+      slug,
+      isActive,
+    },
+  })
+
+  revalidatePath("/")
+  revalidatePath("/admin")
+  redirectWithStatus("message", "Categoria cadastrada com sucesso.")
 }
 
 export async function toggleProductStatusAction(formData: FormData) {
@@ -192,5 +249,34 @@ export async function toggleProductStatusAction(formData: FormData) {
     nextStatus
       ? "Produto ativado com sucesso."
       : "Produto desativado com sucesso."
+  )
+}
+
+export async function toggleCategoryStatusAction(formData: FormData) {
+  await requireCurrentAdmin()
+
+  const categoryId = String(formData.get("categoryId") ?? "")
+  const nextStatus = String(formData.get("nextStatus") ?? "") === "true"
+
+  if (!categoryId) {
+    redirectWithStatus("error", "Categoria nao encontrada.")
+  }
+
+  await prisma.category.update({
+    where: {
+      id: categoryId,
+    },
+    data: {
+      isActive: nextStatus,
+    },
+  })
+
+  revalidatePath("/")
+  revalidatePath("/admin")
+  redirectWithStatus(
+    "message",
+    nextStatus
+      ? "Categoria ativada com sucesso."
+      : "Categoria desativada com sucesso."
   )
 }
